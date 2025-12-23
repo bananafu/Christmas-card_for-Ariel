@@ -19,8 +19,19 @@
     const TO_NAME   = "To: Ariel";
     const FROM_NAME = "From: Aster";
     const MESSAGE   = "Merry Christmas 🎄\nMay you feel loved, safe, and bright.";
-    const AUDIO_FILE = "mistletoe.mp3"; // IMPORTANT: must match your file name
+    const AUDIO_FILE = "mistletoe.mp3";
+    
+    // ===== Text style (edit here like Jupyter variables) =====
+    const CARD_TEXT_ALIGN = "left";     // "left" only (what you want)
+    const CARD_FONT_SIZE  = 30;         // message font size
+    const CARD_TEXT_COLOR = "#FFEFEF";  // message color (hex)
+    const TO_FROM_COLOR   = "#FFFFFF";  // To/From color
+    const TO_FONT_SIZE   = 18;
+    const FROM_FONT_SIZE = 16;
+
     // ===========================
+    let opened = false;
+    let openBtn;
 
     let snow = [];
     let sparkles = [];
@@ -36,6 +47,25 @@
     }
 
     function setup() {
+      openBtn = createButton("Open the card 🎁");
+      openBtn.position(width / 2 - 90, height / 2 - 22);
+      openBtn.size(180, 44);
+      openBtn.style("border", "0");
+      openBtn.style("border-radius", "14px");
+      openBtn.style("cursor", "pointer");
+      openBtn.style("font-size", "16px");
+      openBtn.style("background", "rgba(255,255,255,0.16)");
+      openBtn.style("color", "white");
+      openBtn.style("backdrop-filter", "blur(8px)");
+      
+      openBtn.mousePressed(() => {
+        opened = true;
+        openBtn.hide();
+      
+        // Optional: start audio context so Play button works immediately after
+        userStartAudio();
+      });
+
       createCanvas(windowWidth, windowHeight);
       textFont("system-ui, -apple-system, Segoe UI, Roboto, Arial");
       textAlign(CENTER, CENTER);
@@ -56,16 +86,25 @@
 
     function draw() {
       drawGradient();
-      drawLights();
-      drawSnow();
-      drawTree();
-      drawCardText();
-      drawSparkles();
 
-      if (song && song.isLoaded()) {
-        song.setVolume(volSlider.value() / 100);
-      }
+    if (!opened) {
+      // “Cover screen”: small hint + gentle snowfall if you want
+      drawSnow(); // optional (comment out if you want static)
+      drawCoverText();
+      return;     // stop here before drawing the full card
     }
+  
+    // After opened:
+    drawLights();
+    drawSnow();
+    drawTree();
+    drawCardText();
+    drawSparkles();
+  
+    if (song && song.isLoaded()) {
+      song.setVolume(volSlider.value() / 100);
+    }
+   }
 
     function drawGradient() {
       noFill();
@@ -272,6 +311,9 @@
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
+      if (openBtn && !opened) {
+        openBtn.position(width / 2 - 90, height / 2 - 22);
+      }
     }
   </script>
 </body>
