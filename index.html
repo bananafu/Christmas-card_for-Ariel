@@ -244,37 +244,43 @@
 
     function drawCardText() {
       const panelW = min(860, width * 0.90);
-      const panelH = 280;
+      const panelH = 300;
       const px = width / 2;
-      const py = height * 0.30;
+      const py = height / 2;   // ✅ 卡片在畫面正中央
     
+      // Card border
       noStroke();
       fill(255, 255, 255, 0.10);
       rectMode(CENTER);
       rect(px, py, panelW, panelH, 22);
     
-      // left-top writing area
-      const pad = 28;
+      // Inner padding
+      const pad = 32;
       const leftX = px - panelW / 2 + pad;
-      const topY  = py - panelH / 2 + pad;
+      const topY  = py - panelH / 2 + panelH * 0.18; // ✅ 文字視覺置中
     
       // To
       fill(TO_FROM_COLOR);
-      textAlign(CARD_TEXT_ALIGN === "left" ? LEFT : CENTER, TOP);
-      textSize(typeof TO_FONT_SIZE !== "undefined" ? TO_FONT_SIZE : 18);
+      textAlign(LEFT, TOP);
+      textSize(TO_FONT_SIZE);
       text(TO_NAME, leftX, topY);
     
       // Message
       fill(CARD_TEXT_COLOR);
       textSize(CARD_FONT_SIZE);
       textWrap(WORD);
-      text(MESSAGE, leftX, topY + 40, panelW - pad * 2);
+      text(MESSAGE, leftX, topY + 44, panelW - pad * 2);
     
       // From
       fill(TO_FROM_COLOR);
-      textSize(typeof FROM_FONT_SIZE !== "undefined" ? FROM_FONT_SIZE : 16);
-      text(FROM_NAME, leftX, py + panelH / 2 - pad - 18);
+      textSize(FROM_FONT_SIZE);
+      text(
+        FROM_NAME,
+        leftX,
+        py + panelH / 2 - pad - FROM_FONT_SIZE
+      );
     }
+
 
     function mousePressed() {
       if (!opened) return;  // 封面階段不生成粒子，避免壓力/異常
