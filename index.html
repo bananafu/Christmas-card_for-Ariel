@@ -23,7 +23,7 @@
     
     // ===== Text style (edit here like Jupyter variables) =====
     const CARD_TEXT_ALIGN = "left";     // "left" only (what you want)
-    const CARD_FONT_SIZE  = 30;         // message font size
+    const CARD_FONT_SIZE  = 24;         // message font size
     const CARD_TEXT_COLOR = "#FFEFEF";  // message color (hex)
     const TO_FROM_COLOR   = "#FFFFFF";  // To/From color
     const TO_FONT_SIZE   = 18;
@@ -247,7 +247,8 @@
       const panelH = 300;
       const px = width / 3;
       const py = height / 2;   // ✅ 卡片在畫面正中央
-    
+      const TEXT_SHIFT_X = 15 * 37.8; // 15 cm ≈ 567 px (以 96dpi 估算)
+
       // Card border
       noStroke();
       fill(255, 255, 255, 0.10);
@@ -256,7 +257,7 @@
     
       // Inner padding
       const pad = 32;
-      const leftX = px - panelW / 2 + pad;
+      const leftX = px - panelW / 2 + pad + TEXT_SHIFT_X;
       const topY  = py - panelH / 2 + panelH * 0.18; // ✅ 文字視覺置中
     
       // To
