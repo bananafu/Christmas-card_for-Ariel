@@ -15,96 +15,55 @@
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/addons/p5.sound.min.js"></script>
 
   <script>
-    // ====== Customize these ======
-    const TO_NAME = "To: Ariel";
+    // ====== Customize here ======
+    const TO_NAME   = "To: Ariel";
     const FROM_NAME = "From: Aster";
-    const MESSAGE = "Merry Christmas! May your days be warm, gentle, and bright.";
-    const AUDIO_FILE = "mistletoe.mp3"; // put this file next to index.html
-    // ============================
+    const MESSAGE   = "Merry Christmas 🎄\nMay you feel loved, safe, and bright.";
+    const AUDIO_FILE = "mistletoe.mp3"; // IMPORTANT: must match your file name
+    // ===========================
 
     let snow = [];
-    let lights = [];
+    let sparkles = [];
     let typed = "";
     let typeIdx = 0;
 
     let song;
     let playBtn, volSlider;
-    let isReady = false;
 
     function preload() {
-      // Load audio (won't play until user gesture)
       soundFormats('mp3', 'wav', 'ogg');
-      song = loadSound(AUDIO_FILE,
-        () => { isReady = true; },
-        (err) => {
-          console.error(err);
-          isReady = false;
-        }
-      );
+      song = loadSound(AUDIO_FILE);
     }
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
+      textFont("system-ui, -apple-system, Segoe UI, Roboto, Arial");
+      textAlign(CENTER, CENTER);
 
       // Snow
       for (let i = 0; i < 220; i++) snow.push(makeSnowflake());
 
-      // Christmas lights (string across top)
-      const n = 24;
-      for (let i = 0; i < n; i++) {
-        lights.push({
-          x: map(i, 0, n - 1, width * 0.08, width * 0.92),
-          phase: random(TWO_PI),
-          r: 10 + random(6),
-        });
-      }
-
-      // UI
+      // UI: Play / Pause + Volume
       playBtn = createButton("▶ Play music");
       playBtn.position(16, 16);
-      playBtn.style("padding", "10px 12px");
-      playBtn.style("border", "0");
-      playBtn.style("border-radius", "12px");
-      playBtn.style("cursor", "pointer");
-      playBtn.style("font-size", "14px");
-      playBtn.style("background", "rgba(255,255,255,0.14)");
-      playBtn.style("color", "white");
-      playBtn.style("backdrop-filter", "blur(6px)");
-
+      styleButton(playBtn);
       playBtn.mousePressed(toggleMusic);
 
       volSlider = createSlider(0, 100, 55, 1);
       volSlider.position(16, 56);
       volSlider.style("width", "160px");
-
-      textFont("system-ui, -apple-system, Segoe UI, Roboto, Arial");
-      textAlign(CENTER, CENTER);
     }
 
     function draw() {
-      // Background gradient
       drawGradient();
-
-      // Decorative lights
       drawLights();
-
-      // Snow
       drawSnow();
-
-      // Tree silhouette + star
       drawTree();
-
-      // Typed message
       drawCardText();
+      drawSparkles();
 
-      // Audio volume
       if (song && song.isLoaded()) {
         song.setVolume(volSlider.value() / 100);
-      }
-
-      // Subtle hint if audio failed to load
-      if (!isReady) {
-        drawSmallNotice("If music doesn’t load: make sure jingle.mp3 is next to index.html.");
       }
     }
 
@@ -121,37 +80,36 @@
     }
 
     function drawLights() {
-      // Wire
+      const n = 24;
       stroke(255, 255, 255, 70);
       strokeWeight(2);
       noFill();
+
       beginShape();
-      for (let i = 0; i < lights.length; i++) {
-        const lx = lights[i].x;
-        const sag = sin((i / (lights.length - 1)) * PI) * 26;
-        vertex(lx, 72 + sag);
+      for (let i = 0; i < n; i++) {
+        const x = map(i, 0, n - 1, width * 0.08, width * 0.92);
+        const sag = sin((i / (n - 1)) * PI) * 26;
+        vertex(x, 72 + sag);
       }
       endShape();
 
-      // Bulbs
       noStroke();
-      for (let i = 0; i < lights.length; i++) {
-        const L = lights[i];
-        const sag = sin((i / (lights.length - 1)) * PI) * 26;
+      for (let i = 0; i < n; i++) {
+        const x = map(i, 0, n - 1, width * 0.08, width * 0.92);
+        const sag = sin((i / (n - 1)) * PI) * 26;
         const y = 72 + sag;
-        const pulse = 0.55 + 0.45 * sin(frameCount * 0.05 + L.phase);
 
-        // Alternate “colors” by varying channel emphasis (still simple)
+        const pulse = 0.55 + 0.45 * sin(frameCount * 0.05 + i);
         const mode = i % 4;
         let cr = 255 * (mode === 0 || mode === 3 ? 1 : 0.45);
         let cg = 255 * (mode === 1 || mode === 3 ? 1 : 0.45);
         let cb = 255 * (mode === 2 ? 1 : 0.45);
 
         fill(cr, cg, cb, 140 + 100 * pulse);
-        ellipse(L.x, y, L.r * (0.95 + 0.25 * pulse));
+        ellipse(x, y, 10 + 6 * pulse);
 
-        fill(255, 255, 255, 35 + 35 * pulse);
-        ellipse(L.x, y, L.r * 2.3);
+        fill(255, 255, 255, 28 + 28 * pulse);
+        ellipse(x, y, 28);
       }
     }
 
@@ -183,12 +141,10 @@
     }
 
     function drawTree() {
-      // Ground glow
       noStroke();
       fill(255, 255, 255, 18);
       ellipse(width * 0.5, height * 0.86, width * 0.7, height * 0.22);
 
-      // Tree silhouette (simple layered triangles)
       push();
       translate(width * 0.5, height * 0.70);
       const baseW = min(width, height) * 0.48;
@@ -198,11 +154,9 @@
       triangle(0, -baseW * 0.28, -baseW * 0.20, 0, baseW * 0.20, 0);
       triangle(0, 0, -baseW * 0.28, baseW * 0.32, baseW * 0.28, baseW * 0.32);
 
-      // Trunk
       rectMode(CENTER);
       rect(0, baseW * 0.40, baseW * 0.08, baseW * 0.16, 8);
 
-      // Star
       const starPulse = 0.6 + 0.4 * sin(frameCount * 0.06);
       translate(0, -baseW * 0.62);
       drawStar(0, 0, 10, 22 + 6 * starPulse, 5, starPulse);
@@ -228,15 +182,14 @@
     }
 
     function drawCardText() {
-      // Typewriter effect
+      // typewriter effect
       if (frameCount % 3 === 0 && typeIdx < MESSAGE.length) {
         typed += MESSAGE[typeIdx];
         typeIdx++;
       }
 
-      // Text panel
-      const panelW = min(760, width * 0.9);
-      const panelH = 210;
+      const panelW = min(780, width * 0.9);
+      const panelH = 230;
       const px = width / 2;
       const py = height * 0.28;
 
@@ -245,39 +198,25 @@
       rectMode(CENTER);
       rect(px, py, panelW, panelH, 22);
 
-      // Header
       fill(255, 255, 255, 220);
       textSize(20);
-      text(TO_NAME, px, py - 70);
+      text(TO_NAME, px, py - 78);
 
-      // Main message
       fill(255, 255, 255, 235);
       textSize(30);
       textWrap(WORD);
       text(typed, px, py);
 
-      // Footer
       fill(255, 255, 255, 190);
       textSize(18);
-      text(FROM_NAME, px, py + 78);
+      text(FROM_NAME, px, py + 82);
 
-      // Tiny instruction
-      fill(255, 255, 255, 130);
+      fill(255, 255, 255, 140);
       textSize(14);
-      text("Click anywhere for sparkles ✨", px, py + 110);
-    }
-
-    function drawSmallNotice(msg) {
-      noStroke();
-      fill(255, 255, 255, 130);
-      textSize(12);
-      textAlign(LEFT, CENTER);
-      text(msg, 16, 92);
-      textAlign(CENTER, CENTER);
+      text("Click anywhere for sparkles ✨", px, py + 112);
     }
 
     function mousePressed() {
-      // Sparkles on click
       for (let i = 0; i < 90; i++) {
         sparkles.push({
           x: mouseX,
@@ -289,7 +228,6 @@
       }
     }
 
-    let sparkles = [];
     function drawSparkles() {
       for (let p of sparkles) {
         noStroke();
@@ -303,19 +241,23 @@
       sparkles = sparkles.filter(p => p.life > 0);
     }
 
-    // Add sparkles into draw loop cleanly
-    const _draw = draw;
-    draw = function() {
-      _draw();
-      drawSparkles();
+    function styleButton(btn) {
+      btn.style("padding", "10px 12px");
+      btn.style("border", "0");
+      btn.style("border-radius", "12px");
+      btn.style("cursor", "pointer");
+      btn.style("font-size", "14px");
+      btn.style("background", "rgba(255,255,255,0.14)");
+      btn.style("color", "white");
+      btn.style("backdrop-filter", "blur(6px)");
     }
 
     function toggleMusic() {
-      // required: user gesture to start audio context
+      // Browser requires a user gesture to start audio
       userStartAudio();
 
       if (!song || !song.isLoaded()) {
-        playBtn.html("⚠ Music not found");
+        playBtn.html("⚠ Music not loaded");
         return;
       }
 
@@ -330,13 +272,7 @@
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
-
-      // Reposition lights across width
-      for (let i = 0; i < lights.length; i++) {
-        lights[i].x = map(i, 0, lights.length - 1, width * 0.08, width * 0.92);
-      }
     }
   </script>
 </body>
 </html>
-
