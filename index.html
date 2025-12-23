@@ -1,1 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Christmas Card</title>
+  <style>
+    html, body { margin: 0; padding: 0; background: #050814; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <!-- p5 + p5.sound -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/addons/p5.sound.min.js"></script>
+
+  <script>
+    // ====== Customize these ======
+    const TO_NAME = "To: Ariel";
+    const FROM_NAME = "From: Aster";
+    const MESSAGE = "Merry Christmas! May your days be warm, gentle, and bright.";
+    const AUDIO_FILE = "Mistletoe.mp3"; // put this file next to index.html
+    // ============================
+
+    let snow = [];
+    let lights = [];
+    let typed = "";
+    let typeIdx = 0;
+
+    let song;
+    let playBtn, volSlider;
+    let isReady = false;
+
+    function preload() {
+      // Load audio (won't play until user gesture)
+      soundFormats('mp3', 'wav', 'ogg');
+      song = loadSound(AUDIO_FILE,
+        () => { isReady = true; },
+        (err) => {
+          console.error(err);
+          isReady = false;
+        }
+      );
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+
+      // Snow
+      for (let i = 0; i < 220; i++) snow.push(makeSnowflake());
+
+      // Christmas lights (string across top)
+      const n = 24;
+      for (let i = 0; i < n; i++) {
+        lights.push({
+          x: map(i, 0, n - 1, width * 0.08, width * 0.92),
+          phase: random(TWO_PI),
+          r: 10 + random(6),
+        });
+      }
+
+      // UI
+      playBtn = createButton("▶ Play music");
+      playBtn.position(16, 16);
+      playBtn.style("padding", "10px 12px");
+      playBtn.style("border", "0");
+      playBtn.style("border-radius", "12px");
+      playBtn.style("cursor", "pointer");
+      playBtn.style("font-size", "14px");
+      playBtn.style("background", "rgba(255,255,255,0.14)");
+      playBtn.style("color", "white");
+      playBtn.style("backdrop-filter", "blur(6px)");
+
+      playBtn.mousePressed(toggleMusic);
+
+      volSlider = createSlider(0, 100, 55, 1);
+      volSlider.position(16, 56);
+      volSlider.style("width", "160px");
+
+      textFont("system-ui, -apple-system, Segoe UI, Roboto, Arial");
+      textAlign(CENTER, CENTER);
+    }
+
+    function draw() {
+      // Background gradient
+      drawGradient();
+
+      // Decorative lights
+      drawLights();
+
+      // Snow
+      drawSnow();
+
+      // Tree silhouette + star
+      drawTree();
+
+      // Typed message
+      drawCardText();
+
+      // Audio volume
+      if (song && song.isLoaded()) {
+        song.setVolume(volSlider.value() / 100);
+      }
+
+      // Subtle hint if audio failed to load
+      if (!isReady) {
+        drawSmallNotice("If music doesn’t load: make sure jingle.mp3 is next to index.html.");
+      }
+    }
+
+    function drawGradient() {
+      noFill();
+      for (let y = 0; y < height; y++) {
+        const t = y / height;
+        const r = lerp(5, 18, t);
+        const g = lerp(8, 20, t);
+        const b = lerp(20, 55, t);
+        stroke(r, g, b);
+        line(0, y, width, y);
+      }
+    }
+
+    function drawLights() {
+      // Wire
+      stroke(255, 255, 255, 70);
+      strokeWeight(2);
+      noFill();
+      beginShape();
+      for (let i = 0; i < lights.length; i++) {
+        const lx = lights[i].x;
+        const sag = sin((i / (lights.length - 1)) * PI) * 26;
+        vertex(lx, 72 + sag);
+      }
+      endShape();
+
+      // Bulbs
+      noStroke();
+      for (let i = 0; i < lights.length; i++) {
+        const L = lights[i];
+        const sag = sin((i / (lights.length - 1)) * PI) * 26;
+        const y = 72 + sag;
+        const pulse = 0.55 + 0.45 * sin(frameCount * 0.05 + L.phase);
+
+        // Alternate “colors” by varying channel emphasis (still simple)
+        const mode = i % 4;
+        let cr = 255 * (mode === 0 || mode === 3 ? 1 : 0.45);
+        let cg = 255 * (mode === 1 || mode === 3 ? 1 : 0.45);
+        let cb = 255 * (mode === 2 ? 1 : 0.45);
+
+        fill(cr, cg, cb, 140 + 100 * pulse);
+        ellipse(L.x, y, L.r * (0.95 + 0.25 * pulse));
+
+        fill(255, 255, 255, 35 + 35 * pulse);
+        ellipse(L.x, y, L.r * 2.3);
+      }
+    }
+
+    function makeSnowflake() {
+      return {
+        x: random(width),
+        y: random(-height, height),
+        r: random(1.2, 3.4),
+        spd: random(0.6, 2.0),
+        drift: random(-0.7, 0.7),
+      };
+    }
+
+    function drawSnow() {
+      noStroke();
+      for (let s of snow) {
+        fill(255, 255, 255, 190);
+        circle(s.x, s.y, s.r * 2);
+        s.y += s.spd;
+        s.x += s.drift + sin(frameCount * 0.01 + s.y * 0.02) * 0.2;
+
+        if (s.y > height + 10) {
+          s.y = random(-120, -10);
+          s.x = random(width);
+        }
+        if (s.x < -20) s.x = width + 20;
+        if (s.x > width + 20) s.x = -20;
+      }
+    }
+
+    function drawTree() {
+      // Ground glow
+      noStroke();
+      fill(255, 255, 255, 18);
+      ellipse(width * 0.5, height * 0.86, width * 0.7, height * 0.22);
+
+      // Tree silhouette (simple layered triangles)
+      push();
+      translate(width * 0.5, height * 0.70);
+      const baseW = min(width, height) * 0.48;
+
+      fill(0, 0, 0, 140);
+      triangle(0, -baseW * 0.55, -baseW * 0.12, -baseW * 0.20, baseW * 0.12, -baseW * 0.20);
+      triangle(0, -baseW * 0.28, -baseW * 0.20, 0, baseW * 0.20, 0);
+      triangle(0, 0, -baseW * 0.28, baseW * 0.32, baseW * 0.28, baseW * 0.32);
+
+      // Trunk
+      rectMode(CENTER);
+      rect(0, baseW * 0.40, baseW * 0.08, baseW * 0.16, 8);
+
+      // Star
+      const starPulse = 0.6 + 0.4 * sin(frameCount * 0.06);
+      translate(0, -baseW * 0.62);
+      drawStar(0, 0, 10, 22 + 6 * starPulse, 5, starPulse);
+      pop();
+    }
+
+    function drawStar(x, y, r1, r2, n, pulse) {
+      push();
+      translate(x, y);
+      noStroke();
+      fill(255, 255, 200, 140 + 80 * pulse);
+      beginShape();
+      for (let i = 0; i < n * 2; i++) {
+        const ang = (PI / n) * i;
+        const rr = (i % 2 === 0) ? r2 : r1;
+        vertex(cos(ang) * rr, sin(ang) * rr);
+      }
+      endShape(CLOSE);
+
+      fill(255, 255, 220, 25 + 25 * pulse);
+      ellipse(0, 0, r2 * 3.0);
+      pop();
+    }
+
+    function drawCardText() {
+      // Typewriter effect
+      if (frameCount % 3 === 0 && typeIdx < MESSAGE.length) {
+        typed += MESSAGE[typeIdx];
+        typeIdx++;
+      }
+
+      // Text panel
+      const panelW = min(760, width * 0.9);
+      const panelH = 210;
+      const px = width / 2;
+      const py = height * 0.28;
+
+      noStroke();
+      fill(255, 255, 255, 0.10);
+      rectMode(CENTER);
+      rect(px, py, panelW, panelH, 22);
+
+      // Header
+      fill(255, 255, 255, 220);
+      textSize(20);
+      text(TO_NAME, px, py - 70);
+
+      // Main message
+      fill(255, 255, 255, 235);
+      textSize(30);
+      textWrap(WORD);
+      text(typed, px, py);
+
+      // Footer
+      fill(255, 255, 255, 190);
+      textSize(18);
+      text(FROM_NAME, px, py + 78);
+
+      // Tiny instruction
+      fill(255, 255, 255, 130);
+      textSize(14);
+      text("Click anywhere for sparkles ✨", px, py + 110);
+    }
+
+    function drawSmallNotice(msg) {
+      noStroke();
+      fill(255, 255, 255, 130);
+      textSize(12);
+      textAlign(LEFT, CENTER);
+      text(msg, 16, 92);
+      textAlign(CENTER, CENTER);
+    }
+
+    function mousePressed() {
+      // Sparkles on click
+      for (let i = 0; i < 90; i++) {
+        sparkles.push({
+          x: mouseX,
+          y: mouseY,
+          vx: random(-3, 3),
+          vy: random(-3, 3),
+          life: 255
+        });
+      }
+    }
+
+    let sparkles = [];
+    function drawSparkles() {
+      for (let p of sparkles) {
+        noStroke();
+        fill(255, 255, 255, p.life);
+        circle(p.x, p.y, 3);
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03;
+        p.life -= 5;
+      }
+      sparkles = sparkles.filter(p => p.life > 0);
+    }
+
+    // Add sparkles into draw loop cleanly
+    const _draw = draw;
+    draw = function() {
+      _draw();
+      drawSparkles();
+    }
+
+    function toggleMusic() {
+      // required: user gesture to start audio context
+      userStartAudio();
+
+      if (!song || !song.isLoaded()) {
+        playBtn.html("⚠ Music not found");
+        return;
+      }
+
+      if (song.isPlaying()) {
+        song.pause();
+        playBtn.html("▶ Play music");
+      } else {
+        song.loop();
+        playBtn.html("⏸ Pause music");
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+
+      // Reposition lights across width
+      for (let i = 0; i < lights.length; i++) {
+        lights[i].x = map(i, 0, lights.length - 1, width * 0.08, width * 0.92);
+      }
+    }
+  </script>
+</body>
+</html>
 
