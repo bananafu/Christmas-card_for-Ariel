@@ -80,7 +80,7 @@
       openBtn.style("backdrop-filter", "blur(8px)");
     
       // center it
-      openBtn.position(width / 2 - 90, height / 2 - 22);
+      openBtn.position(windowWidth / 2 - 90, windowHeight / 2 - 22);
     
       openBtn.mousePressed(() => {
         opened = true;
@@ -95,15 +95,13 @@
       });
     }
 
-
     function draw() {
       drawGradient();
 
     if (!opened) {
-      // “Cover screen”: small hint + gentle snowfall if you want
-      drawSnow(); // optional (comment out if you want static)
+      if (snow.length > 0) drawSnow();  // 防止雪花未初始化造成錯誤
       drawCoverText();
-      return;     // stop here before drawing the full card
+      return;
     }
   
     // After opened:
@@ -279,6 +277,8 @@
     }
 
     function mousePressed() {
+      if (!opened) return;  // 封面階段不生成粒子，避免壓力/異常
+    
       for (let i = 0; i < 90; i++) {
         sparkles.push({
           x: mouseX,
@@ -334,10 +334,12 @@
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
+    
       if (openBtn && !opened) {
-        openBtn.position(width / 2 - 90, height / 2 - 22);
+        openBtn.position(windowWidth / 2 - 90, windowHeight / 2 - 22);
       }
     }
+
   </script>
 </body>
 </html>
