@@ -267,7 +267,12 @@
       const pad = isMobile ? 18 : 32;
     
       // IMPORTANT: no "15cm" fixed shift. Use a % shift (or just 0 on mobile)
-      const TEXT_SHIFT_X = isMobile ? 0 : panelW * 0.10; // desktop slightly to the right
+      // Text horizontal shift
+      // desktop → move right
+      // mobile  → slightly left (for reading)
+      const TEXT_SHIFT_X = isMobile
+        ? -panelW * 0.06   // 手機：往左一點
+        :  panelW * 0.12;  // 電腦：往右一點
     
       const leftX  = px - panelW / 2 + pad + TEXT_SHIFT_X;
       const rightX = px + panelW / 2 - pad;
@@ -292,7 +297,7 @@
       textSize(msgSize);
       textWrap(WORD);
     
-      const innerW = (panelW - pad * 2) - TEXT_SHIFT_X; // keep inside card
+      const innerW = panelW - pad * 2 - Math.max(TEXT_SHIFT_X, 0);
       const msgY = topY + toSize + 12;
     
       text(MESSAGE, leftX, msgY, innerW);
@@ -302,7 +307,14 @@
       fill(TO_FROM_COLOR);
       textAlign(RIGHT, BOTTOM);
       textSize(fromSize);
-      text(FROM_NAME, rightX, py + panelH / 2 - pad - SAFE_BOTTOM);
+      const FROM_OFFSET_Y = isMobile ? 10 : 18;
+
+      text(
+        FROM_NAME,
+        rightX,
+        py + panelH / 2 - pad + FROM_OFFSET_Y
+      );
+
     }
 
 
