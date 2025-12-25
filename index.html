@@ -242,61 +242,59 @@
       pop();
     }
 
-    function drawCardText() {
-      const isMobile = width < 520;
-      
-      // 1. 卡片寬度：確保在手機上左右留有安全邊距
-      const panelW = isMobile ? width * 0.85 : min(860, width * 0.70);
-      const panelH = isMobile ? height * 0.65 : 350;
-      
-      const px = width / 2;
-      const py = height / 2;
-      
-      // 2. 繪製半透明背景卡片 (居中)
-      noStroke();
-      fill(255, 255, 255, 0.12);
-      rectMode(CENTER);
-      rect(px, py, panelW, panelH, 20);
-      
-      // 3. 設定文字區域的邊距 (Padding)
-      const pad = isMobile ? 20 : 40;
-      const textAreaW = panelW - pad * 2; // 真正的文字可寫區域寬度
-      
-      // 計算文字起始座標 (左上角基準)
-      const startX = px - panelW / 2 + pad;
-      const startY = py - panelH / 2 + pad;
-      
-      // 4. 設定字體大小
-      const toSize   = isMobile ? 18 : 22;
-      const msgSize  = isMobile ? 15 : 18;
-      const fromSize = isMobile ? 14 : 16;
-      
-      // --- 繪製 To ---
-      fill(TO_FROM_COLOR);
-      textAlign(LEFT, TOP);
-      textSize(toSize);
-      textStyle(BOLD);
-      text(TO_NAME, startX, startY);
-      
-      // --- 繪製 Message ---
-      fill(CARD_TEXT_COLOR);
-      textStyle(NORMAL);
-      textSize(msgSize);
-      textLeading(msgSize * 1.5); // 增加行高，閱讀更舒服
-      textWrap(WORD);
-      
-      // 計算訊息起始 Y 座標 (在 To 之下)
-      const msgY = startY + toSize + 15;
-      // 限制文字顯示在 textAreaW 寬度內
-      text(MESSAGE, startX, msgY, textAreaW);
-      
-      // --- 繪製 From ---
-      fill(TO_FROM_COLOR);
-      textAlign(RIGHT, BOTTOM);
-      textSize(fromSize);
-      // From 放在卡片右下角，並留一點邊距
-      text(FROM_NAME, px + panelW / 2 - pad, py + panelH / 2 - pad);
-    }
+   function drawCardText() {
+    const isMobile = width < 520;
+    
+    // 1. 定義基礎尺寸
+    const panelW = isMobile ? width * 0.90 : min(860, width * 0.75);
+    const panelH = isMobile ? height * 0.65 : 380;
+    const px = width / 2;
+    const py = height / 2;
+    
+    // 2. 繪製卡片背景
+    noStroke();
+    fill(255, 255, 255, 0.12);
+    rectMode(CENTER);
+    rect(px, py, panelW, panelH, 20);
+    
+    // 3. 設定偏移量與邊距
+    const GLOBAL_OFFSET_X = 50; // 你要求的整體向右位移 50pt
+    const pad = isMobile ? 15 : 30;
+    
+    // 計算起始 X 座標：原本的左側起點 + 50
+    const startX = (px - panelW / 2 + pad) + GLOBAL_OFFSET_X;
+    
+    // 計算文字寬度：必須扣除左邊多出的 50pt 偏移，否則右邊會超出卡片
+    const textAreaW = (panelW - pad * 2) - GLOBAL_OFFSET_X;
+    
+    // 4. 設定字體
+    const toSize   = isMobile ? 17 : 22;
+    const msgSize  = isMobile ? 14 : 18;
+    const fromSize = isMobile ? 14 : 16;
+    
+    // --- 繪製 To ---
+    fill(TO_FROM_COLOR);
+    textAlign(LEFT, TOP);
+    textSize(toSize);
+    text(TO_NAME, startX, py - panelH / 2 + pad);
+    
+    // --- 繪製 Message ---
+    fill(CARD_TEXT_COLOR);
+    textSize(msgSize);
+    textLeading(msgSize * 1.4);
+    textWrap(WORD);
+    
+    const msgY = (py - panelH / 2 + pad) + toSize + 15;
+    text(MESSAGE, startX, msgY, textAreaW);
+    
+    // --- 繪製 From ---
+    // From 也跟著向右移，但要確保不超過卡片右邊邊緣
+    fill(TO_FROM_COLOR);
+    textAlign(RIGHT, BOTTOM);
+    textSize(fromSize);
+    const rightX = (px + panelW / 2 - pad); // 右邊界不變，文字會向右靠攏
+    text(FROM_NAME, rightX, py + panelH / 2 - pad);
+  }
 
 
     function mousePressed() {
