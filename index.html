@@ -265,7 +265,9 @@
     
       // Inner padding
       const pad = 32;
+      const SAFE_BOTTOM = 18; // 防止 From 被 border 吃掉
       const leftX = px - panelW / 2 + pad + TEXT_SHIFT_X;
+      const rightX = px + panelW / 2 - pad;
       const topY  = py - panelH / 2 + panelH * 0.18; // ✅ 文字視覺置中
     
       // To
@@ -280,15 +282,15 @@
       textWrap(WORD);
       text(MESSAGE, leftX, topY + 44, panelW - pad * 2);
     
-      // From
+      // From (right, safe)
       fill(TO_FROM_COLOR);
+      textAlign(RIGHT, BOTTOM);
       textSize(FROM_FONT_SIZE);
       text(
         FROM_NAME,
-        leftX,
-        py + panelH / 2 - pad - FROM_FONT_SIZE
+        rightX,
+        py + panelH / 2 - pad - SAFE_BOTTOM
       );
-    }
 
 
     function mousePressed() {
