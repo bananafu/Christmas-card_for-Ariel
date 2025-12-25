@@ -268,6 +268,7 @@
       const leftX = px - panelW / 2 + pad + TEXT_SHIFT_X;
       const rightX = px + panelW / 2 - pad;
       const topY  = py - panelH / 2 + panelH * 0.18; // ✅ 文字視覺置中
+      const SAFE_BOTTOM = 18; // 防止 From 被 border 吃掉
     
       // To
       fill(TO_FROM_COLOR);
@@ -288,7 +289,7 @@
       text(
         FROM_NAME,
         rightX,
-        py + panelH / 2 - pad
+        py + panelH / 2 - pad - SAFE_BOTTOM
       );
     }
 
