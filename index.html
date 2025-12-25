@@ -245,6 +245,7 @@
     function drawCardText() {
       const panelW = min(860, width * 0.90);
       const panelH = 300;
+      const BORDER_INSET = 20; // 數字越大，border 越小、離內容越遠
       const px = width / 3;
       const py = height / 2;   // ✅ 卡片在畫面正中央
       const TEXT_SHIFT_X = 15 * 37.8; // 15 cm ≈ 567 px (以 96dpi 估算)
@@ -253,7 +254,14 @@
       noStroke();
       fill(255, 255, 255, 0.10);
       rectMode(CENTER);
-      rect(px, py, panelW, panelH, 22);
+      rect(
+        px,
+        py,
+        panelW - BORDER_INSET * 2,
+        panelH - BORDER_INSET * 2,
+        22
+      );
+
     
       // Inner padding
       const pad = 32;
